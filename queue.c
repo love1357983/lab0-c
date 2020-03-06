@@ -214,18 +214,29 @@ void q_sort(queue_t *q)
     if (!q || !q->head)
         return;
 
-    list_ele_t *first = q->head;
-    while (first) {
-        list_ele_t *curr = first->next;
-        while (curr) {
-            if (strcasecmp(first->value, curr->value) > 0) {
-                char *tmp = curr->value;
-                curr->value = first->value;
-                first->value = tmp;
+    for (int i = q_size(q); i > 0; i--) {
+        list_ele_t *prev = NULL, *curr = q->head, *prec = q->head->next;
+        for (int j = 0; j < i - 1; j++) {
+            if (strcasecmp(curr->value, prec->value) > 0) {
+                if (!prev)
+                    q->head = prec;
+                else
+                    prev->next = prec;
+                if (!prec->next)
+                    q->tail = curr;
+
+                list_ele_t *tmp = prec->next;
+                prec->next = curr;
+                curr->next = tmp;
+
+                tmp = prec;
+                prec = curr;
+                curr = tmp;
             }
-            curr = curr->next;
+            prev = curr;
+            curr = prec;
+            prec = prec->next;
         }
-        first = first->next;
     }
     return;
 }
