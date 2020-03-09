@@ -5,11 +5,6 @@
 #include "harness.h"
 #include "queue.h"
 
-/*
- * Create empty queue.
- * Return NULL if could not allocate space.
- */
-
 void show_queue(queue_t *q)
 {
     printf("\033[31m====    print start queue   ====\033[0m\n");
@@ -23,6 +18,10 @@ void show_queue(queue_t *q)
     printf("\033[31m====    print end queue   ====\033[0m\n");
 }
 
+/*
+ * Create empty queue.
+ * Return NULL if could not allocate space.
+ */
 queue_t *q_new(void)
 {
     queue_t *q = malloc(sizeof(queue_t));
@@ -209,34 +208,41 @@ void q_reverse(queue_t *q)
  */
 void q_sort(queue_t *q)
 {
-    /* TODO: You need to write the code for this function */
-    /* TODO: Remove the above comment when you are about to implement. */
     if (!q || !q->head)
         return;
 
-    for (int i = q_size(q); i > 0; i--) {
-        list_ele_t *prev = NULL, *curr = q->head, *prec = q->head->next;
-        for (int j = 0; j < i - 1; j++) {
-            if (strcasecmp(curr->value, prec->value) > 0) {
+    int i = 0;
+    list_ele_t *head = q->head;
+
+    while (head) {
+        int j = 0;
+        bool swap_status = false;
+        list_ele_t *prev = NULL, *curr = q->head, *prec = curr->next,
+                   *tmp = NULL;
+        while (j < i) {
+            if (strcasecmp(head->value, curr->value) < 0 && !swap_status) {
+                tmp = head->next;
                 if (!prev)
-                    q->head = prec;
+                    q->head = head;
                 else
-                    prev->next = prec;
+                    prev->next = head;
                 if (!prec->next)
-                    q->tail = curr;
+                    q->tail = prec;
 
-                list_ele_t *tmp = prec->next;
-                prec->next = curr;
-                curr->next = tmp;
-
-                tmp = prec;
-                prec = curr;
-                curr = tmp;
+                head->next = curr;
+                swap_status = true;
             }
             prev = curr;
             curr = prec;
             prec = prec->next;
+            ++j;
         }
+        if (swap_status) {
+            head = prev;
+            prev->next = tmp;
+        }
+        head = head->next;
+        ++i;
     }
     return;
 }
