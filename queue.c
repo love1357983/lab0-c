@@ -211,38 +211,47 @@ void q_sort(queue_t *q)
     if (!q || !q->head)
         return;
 
-    int i = 0;
-    list_ele_t *head = q->head;
+    list_ele_t *head_prev = NULL, *head = q->head, *head_prec = head->next;
 
-    while (head) {
-        int j = 0;
-        bool swap_status = false;
-        list_ele_t *prev = NULL, *curr = q->head, *prec = curr->next,
-                   *tmp = NULL;
-        while (j < i) {
-            if (strcasecmp(head->value, curr->value) < 0 && !swap_status) {
-                tmp = head->next;
-                if (!prev)
-                    q->head = head;
-                else
-                    prev->next = head;
-                if (!prec->next)
-                    q->tail = prec;
-
-                head->next = curr;
-                swap_status = true;
+    while (head->next) {
+        list_ele_t *min_prev = head_prev, *min_curr = head,
+                   *min_prec = head_prec;
+        list_ele_t *prev = head, *curr = head->next;
+        while (curr) {
+            list_ele_t *prec = curr->next;
+            if (strcasecmp(curr->value, min_curr->value) < 0) {
+                min_prev = prev;
+                min_curr = curr;
+                min_prec = prec;
             }
             prev = curr;
             curr = prec;
             prec = prec->next;
-            ++j;
         }
-        if (swap_status) {
-            head = prev;
-            prev->next = tmp;
-        }
-        head = head->next;
-        ++i;
+
+        if (!head_prev)
+            q->head = min_curr;
+        else
+            head_prev->next = min_curr;
+
+        if (!min_prec)
+            q->tail = head;
+
+        if (&min_curr->value == &head_prec->value)
+            min_curr->next = head;
+        else
+            min_curr->next = head_prec;
+
+        if (&head->value == &min_prev->value)
+            head_prec = head;
+        else
+            min_prev->next = head;
+        head->next = min_prec;
+
+        head = min_curr;
+        head_prev = head;
+        head = head_prec;
+        head_prec = head_prec->next;
     }
     return;
 }
